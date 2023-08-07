@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Practitioner’s Challenge Report</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="😊Alex, 😎Erhan," />
+    <meta name="author" content="😆Tiam, 😋Zhihan" />
+    <meta name="date" content="2022-11-25" />
+    <script src="pre_files/header-attrs/header-attrs.js"></script>
+    <link href="pre_files/xaringanExtra-extra-styles/xaringanExtra-extra-styles.css" rel="stylesheet" />
+    <link href="pre_files/tachyons/tachyons.min.css" rel="stylesheet" />
+    <script src="pre_files/xaringanExtra-progressBar/progress-bar.js"></script>
+    <link href="pre_files/panelset/panelset.css" rel="stylesheet" />
+    <script src="pre_files/panelset/panelset.js"></script>
+    <script src="pre_files/fabric/fabric.min.js"></script>
+    <link href="pre_files/xaringanExtra-scribble/scribble.css" rel="stylesheet" />
+    <script src="pre_files/xaringanExtra-scribble/scribble.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function() { window.xeScribble = new Scribble({"pen_color":["#FF0000"],"pen_size":3,"eraser_size":30,"palette":[]}) })</script>
+    <script src="pre_files/mark.js/mark.min.js"></script>
+    <link href="pre_files/xaringanExtra-search/search.css" rel="stylesheet" />
+    <script src="pre_files/xaringanExtra-search/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="pre_files/tile-view/tile-view.css" rel="stylesheet" />
+    <script src="pre_files/tile-view/tile-view.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Practitioner’s Challenge Report
+]
+.author[
+### 😊Alex, 😎Erhan,
+]
+.author[
+### 😆Tiam, 😋Zhihan
+]
+.date[
+### 2022-11-25
+]
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+<style>.xe__progress-bar__container {
+  top:0;
+  opacity: 1;
+  position:absolute;
+  right:0;
+  left: 0;
+}
+.xe__progress-bar {
+  height: 0.25em;
+  background-color: #0051BA;
+  width: calc(var(--slide-current) / var(--slide-total) * 100%);
+}
+.remark-visible .xe__progress-bar {
+  animation: xe__progress-bar__wipe 200ms forwards;
+  animation-timing-function: cubic-bezier(.86,0,.07,1);
+}
+@keyframes xe__progress-bar__wipe {
+  0% { width: calc(var(--slide-previous) / var(--slide-total) * 100%); }
+  100% { width: calc(var(--slide-current) / var(--slide-total) * 100%); }
+}</style>
+
+
+
+
+
+
+
+
+
+## Outline
+
+.f4.b.purple[
+
+1. Task Description
+
+2. Algorithm
+   - Wavelet Factory
+   - Algorithm pipeline
+
+3. Evaluation with Simulation
+
+4. Results and Comparison
+ 
+ - vs. baseline `find_peaks()`
+ - vs. AMPD
+
+5. Summary
+
+]
+
+
+---
+class: inverse, middle, center
+
+# PART 1
+## Task Description
+
+---
+
+## Task Description
+
+### Data
+&lt;img src="./img/tapping.jpg" width="45%"/&gt; &lt;img src="./img/ex.png" width="45%"/&gt;
+
+
+### Mission: Peak Detection
+
+---
+class: inverse,center,middle
+
+# Part 2
+
+## Algorithm
+
+---
+
+
+## Wavelet Factory
+
+
+.f4[ .b[Wavelet Transform] ( Analogue to Fourier Transform )]
+
+$$ C(\Delta, \sigma) = \frac{1}{\sqrt \sigma } \int s(x) w(\frac{t - \Delta}{\sigma})dx $$
+
+ - `\(\Delta\)` : shift parameter
+ 
+ - `\(\sigma\)` : scale parameter
+ 
+ - `\(w\)` : parent wavelet
+ 
+ .center[&lt;img src="./img/wavelet_transform.gif" width="80%"/&gt;]
+ 
+---
+
+## Wavelet Factory
+
+.f4.b[ Wavelet Families]
+
+&lt;img src="./img/wavelet_families.png" &gt;
+
+.center[row 1: wavelet for discrete WT  ||  row 2: wavelet for continuous WT]
+
+---
+
+## Wavelet Factory
+
+.f4[.b[wavelet denoise:] wavelet transform recursively + thresholding]
+
+.center[&lt;img src="./img/multilevel.png" width = "80%"/&gt;]
+.center.f5[LP: low pass | HP: high pass | level = 5 wavelet denoising]
+
+---
+
+## Wavelet Denoise Effect
+
+.panelset[
+.panel[.panel-name[Patient 1]
+.center[&lt;img src="./img/denoise/L1.png" width ="50%"&gt;&lt;img src="./img/denoise/R1.png" width ="50%"&gt;]
+]
+
+.panel[.panel-name[Patient 2]
+.center[&lt;img src="./img/denoise/L2.png" width ="50%"&gt;&lt;img src="./img/denoise/R2.png" width ="50%"&gt;]
+]
+
+.panel[.panel-name[Patient 3]
+
+.center[&lt;img src="./img/denoise/L3.png" width ="50%"&gt;&lt;img src="./img/denoise/R3.png" width ="50%"&gt;]
+
+]
+
+.panel[.panel-name[Patient 4]
+
+.center[&lt;img src="./img/denoise/L4.png" width ="50%"&gt;&lt;img src="./img/denoise/R4.png" width ="50%"&gt;]
+
+]
+]
+
+
+
+---
+
+## Algorithms Pipeline : WaveMatch
+
+.f4.purple[
+
+- .i[Step 0: Normalize signals to [-1,1]]
+
+- .b[Step 1]: Default  `find_peaks()`
+
+ - =&gt; peak indices from original signals
+
+
+- .b[Step 2]: wavelet denoising + `find_peaks(prominence = 0.1)` 
+
+ - =&gt; peak indices from denoised signals
+ 
+ 
+
+- .b[Step 3]: Match peak indices in Step 1 and Step 2
+
+- .i[Step 4: Reconstruct Signals]
+]
+
+---
+
+## Dive into Algorithm:
+
+.panelset[
+.panel[.panel-name[Wavelet Denoise]
+
+- Choose different combinations of wavelet families and members
+
+- Use `skimage.restoration.denoise_wavelet()` for each parent wavelet to denoise the signals
+
+- Do wavelet denoise multiple times to make signals even smoother.
+
+  -  we choose `db4 + coif3 + db4 + coif3` as a combo
+  
+  -  other choices include adding `sym7`, `sym8` ... 
+
+
+]
+
+.panel[.panel-name[Denoise Code]
+
+
+```python
+import numpy as np
+import pywt
+from skimage.restoration import denoise_wavelet
+
+
+def denoise(data, filters_list):
+    """
+    denoise with a bunch of filters
+    a filter will typically be like:
+    filter1 = lambda x: denoise_wavelet(x, *args)
+    """
+    try:
+        for filter in filters_list:
+            data = filter(data)
+        return data
+    except ValueError:
+         print("no appropriate filters list!")
+```
+
+]
+
+.panel[.panel-name[Match]
+
+- Define a difference (loss function) between peaks indices. A prototype can be
+
+`$$\text{diff}(d, o) = \frac{|d - o|}{ke^{s(o)}}$$`
+
+- For each peak index got from denoised signals, find a peak index from the original signals with minimal difference.
+
+]
+
+.panel[.panel-name[Match code]
+
+
+```python
+import numpy as np
+
+def match(peak_ids, peak_values, *args):
+    '''
+    match peaks among multiple arrays
+    *args are the peak_ids of denoised signals
+    '''
+    selected_peaks = []
+    for peaks in args:
+        for id in peaks:
+            difference = (abs(peak_ids-id) + 1) / np.exp(peak_values) #just a prototype
+            matched = np.argmin(difference)
+            selected_peaks.append(peak_ids[matched])
+
+    return np.unique(selected_peaks)
+```
+]
+]
+
+---
+class: inverse, center, middle
+
+# Part 3
+## Evaluation with Simulation
+
+---
+
+## Evalution with Simulation
+
+
+.panelset[
+.panel[.panel-name[Simulation]
+Generate Signals by following process:
+
+`$$s(t) = \lambda_1(t)\sum_i A_i(t)\sin(\omega_i t) + \lambda_2 R_t$$`
+
+`$$R_t = R_{t-1} + \varepsilon_t, \quad \varepsilon_t \sim \mathcal{N}(0,1)$$`
+
+where `\(A_i\)` are random amplitudes and `\(\lambda_1(t)\)` is random loading  for the mixed `\(\sin\)` signals and `\(\lambda_2\)` is loading for the random walk component.
+
+We then manually label the peaks we want.
+]
+
+.panel[.panel-name[Simulated Signal]
+.center[&lt;img src="./img/simulation.png" width ="80%"&gt;]
+]
+
+.panel[.panel-name[Algorithm result]
+
+.center[&lt;img src="./img/eval.png" width ="80%"&gt;]
+
+]
+
+.panel[.panel-name[Confusion Matrix]
+
+
+|Total           | Positive（PP） | Negative (PN) |
+| --------------- | ------------ | ------------- |
+| Positive(P) |  72       |  3        |
+| Negative(N) |  9        | 61        |
+
+.center[
+.b[Accuracy = 91.72%]
+]
+
+
+Actually the result can be even better than literal accuracy: the **FP** and **FT** happens at ambiguous peaks due to manual labelling.
+
+]
+
+
+]
+
+---
+class: inverse, middle, center
+
+# Part 4
+## Results and Comparison
+
+---
+
+## Baseline vs. WaveMatch
+
+.panelset[
+.panel[.panel-name[Patient 1]
+.center[&lt;img src="./img/findpeaks/L1.png" width ="50%"&gt;&lt;img src="./img/findpeaks/R1.png" width ="50%"&gt;]
+]
+
+.panel[.panel-name[Patient 2]
+.center[&lt;img src="./img/findpeaks/L2.png" width ="50%"&gt;&lt;img src="./img/findpeaks/R2.png" width ="50%"&gt;]
+]
+
+.panel[.panel-name[Patient 3]
+
+.center[&lt;img src="./img/findpeaks/L3.png" width ="50%"&gt;&lt;img src="./img/findpeaks/R3.png" width ="50%"&gt;]
+
+]
+
+.panel[.panel-name[Patient 4]
+
+.center[&lt;img src="./img/findpeaks/L4.png" width ="50%"&gt;&lt;img src="./img/findpeaks/R4.png" width ="50%"&gt;]
+
+]
+]
+
+---
+
+## AMPD vs. WaveMatch
+
+Automatic Multiscale-based Peak Detection (AMPD)
+
+- Search an optimal rolling window length and locate one peak in each window.
+
+- Suits quasi-periodical time series. 
+
+.panelset[
+.panel[.panel-name[Patient 1]
+.center[&lt;img src="./img/ampd/L1.png" width ="50%"&gt;&lt;img src="./img/ampd/R1.png" width ="50%"&gt;]
+]
+
+.panel[.panel-name[Patient 2]
+.center[&lt;img src="./img/ampd/L2.png" width ="50%"&gt;&lt;img src="./img/ampd/R2.png" width ="50%"&gt;]
+]
+
+.panel[.panel-name[Patient 3]
+
+.center[&lt;img src="./img/ampd/L3.png" width ="50%"&gt;&lt;img src="./img/ampd/R3.png" width ="50%"&gt;]
+
+]
+
+.panel[.panel-name[Patient 4]
+
+.center[&lt;img src="./img/ampd/L4.png" width ="50%"&gt;&lt;img src="./img/ampd/R4.png" width ="50%"&gt;]
+
+]
+]
+
+---
+class: inverse, middle, center
+
+# Part 5
+## Summary
+
+---
+
+## Summary
+
+- **Hyperparameters**:
+   
+   - wavelet families/members, levels of denoising
+   
+   - `find_peak(prominence)`
+   
+   - difference (loss funciton)
+   
+--
+
+- **Shortcomings**:
+
+  - lack reliable performance metrics
+  
+  - didn't tune hyperparameters for different data source
+  
+
+--
+
+- **Future Direction**:
+
+  - semi-supervised learning with WaveMatch labelled data
+  
+  - supervised learning on labelled data
+
+
+
+---
+
+## Reference
+
+.f6[Christoph Bueschl, Maria Doppler, Elisabeth Varga, Bernhard Seidl, Mira Flasch, Benedikt Warth, Juergen Zanghellini. (2022). PeakBot: machine-learning-based chromatographic peak picking. Bioinformatics, Volume 38, Issue 13.
+
+Ghaderpour E, Pagiatakis SD, Hassan QK. (2021). A Survey on Change Detection and Time Series Analysis with Applications. Applied Sciences, 11(13):6141.
+
+López-García, Aarón. (2022). SpectroMap: Peak detection algorithm for audio fingerprinting. 10.48550/arXiv.2211.00982. 
+
+Morinan, G., Dushin, Y., Sarapata, G. et al. (2023). Computer vision quantification of whole-body Parkinsonian bradykinesia using a large multi-site population. npj Parkinsons Dis. 9, 10.
+
+Rhif M, Ben Abbes A, Farah IR, Martínez B, Sang Y. (2019). Wavelet Transform Application for/in Non-Stationary Time-Series Analysis: A Review. Applied Sciences. 2019; 9(7):1345.
+
+Scholkmann, F., Boss, J., &amp; Wolf, M. (2012). An Efficient Algorithm for Automatic Peak Detection in Noisy Periodic and Quasi-Periodic Signals. Algorithms, 5, 588-603.]
+
+
+
+---
+class: inverse, center, middle
+
+# Thanks!
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "%current%",
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "4:3",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
