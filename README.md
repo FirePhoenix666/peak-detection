@@ -10,4 +10,4 @@ since it is decently optimised already.
 AMPD_preprocess and AMPD_main are the AMPD algorithm's code. Then, the rest is in the main file. We created presentation slides for presenting our work. To view it, 
 git pull this repo and click on the pre_files.html   
 
-The data is not open souced so we dont have the right to share it, even so with the original github repo. Hence, I created this personal repo only for illustration purpose during my job hunting period.    
+The data is not open souced so we dont have the right to share it, also the original github repo. Hence, I created this personal repo only for illustration purpose during my job hunting period.    
